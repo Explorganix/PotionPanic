@@ -69,7 +69,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ScalableCamera.cs" />
+    <Compile Include="Assets\Scripts\ScalableButton.cs" />
+    <Compile Include="Assets\Scripts\ScalableCamera.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
