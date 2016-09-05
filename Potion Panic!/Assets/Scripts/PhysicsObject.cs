@@ -1,62 +1,131 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class PhysicsObject : MonoBehaviour {
-
-    public Vector3 movementVector;
-    public Vector3 targetVector;
-
-    public bool fallingStraight = true;
-    public bool bouncing = false;
-    public float bounceHeight = 8f;
-
+    //Self References
     Rigidbody2D body;
 
-	// Use this for initialization
-	void Start () {
+    //Adjustable Parameters
+    public float bounceHeight;
+    public float bounceTime;
+    public float fallSpeed;
+    public int numRotations;
+
+    //External Object References
+    public Vector3 fallingVector;
+    //public Vector3 leftTarget;
+    //public Vector3 midTarget;
+    //public Vector3 rightTarget;
+    public Trampoline trampoline;
+    public List<Vector3> targetVectors;
+
+    //Control Variables
+    protected Vector3 rotationDirection;
+    protected bool movingLeft;
+    protected bool rotating;
+    protected bool falling;
+    protected bool bouncing;
+    protected int targetVectorIndex;
+    protected int lastTargetVectorIndex;
+
+    protected virtual void Awake()
+    {
+        falling = true;
+        bouncing = false;
+        bounceHeight = 14f;
+        bounceTime = 4f;
+        movingLeft = false;
+        fallingVector = new Vector3(0, fallSpeed, 0);
+        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
         body = GetComponent<Rigidbody2D>();
+        trampoline = GameObject.FindGameObjectWithTag("Trampoline").GetComponent<Trampoline>();
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (fallingStraight)
+    // Use this for initialization
+    protected virtual void Start()
+    {
+        //targetVectors.Add(leftTarget);
+        //targetVectors.Add(midTarget);
+        //targetVectors.Add(rightTarget);
+        targetVectors = trampoline.GetPositions();
+    }
+
+    // Update is called once per frame
+    protected virtual void Update()
+    {
+        if (falling)
         {
-            body.MovePosition(transform.position + movementVector * Time.deltaTime);
-            //transform.Translate(movementVector * Time.deltaTime);
+            body.MovePosition(transform.position + fallingVector * Time.deltaTime);
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.gameObject.tag == "Trampoline")
+        if (other.gameObject.tag == "Trampoline")
         {
-                fallingStraight = false;
-                bouncing = false;
-                StopCoroutine("Bounce");        
-                StartCoroutine("Bounce");
-            
+            UpdateRotation();
+            UpdateBounce();
+        }
+    }
+
+    IEnumerator Rotate()
+    {
+        if (rotating) yield break;
+        rotating = true;
+        while (rotating)
+        {
+            transform.Rotate(rotationDirection, 360 * numRotations * Time.deltaTime / bounceTime);
+            yield return null;
+        }
+    }
+
+    private void UpdateRotation()
+    {
+        if (!rotating)
+        {
+            StartCoroutine("Rotate");
         }
     }
 
     IEnumerator Bounce()
     {
-            Vector3 dest = targetVector;
-            float time = 2.5f;
-            if (bouncing) yield break;
+        Vector3 dest = targetVectors[targetVectorIndex];
+        float time = bounceTime;
 
-            bouncing = true;
-            Vector3 startPos = transform.position;
-            float timer = 0.0f;
+        if (bouncing) yield break;
 
-            while (timer <= 1f && bouncing)
-            {
-                float height = Mathf.Sin(Mathf.PI * timer) * bounceHeight;
-                body.MovePosition(Vector3.Lerp(startPos, dest, timer) + Vector3.up * height);
+        bouncing = true;
+        Vector3 startPos = transform.position;
+        float timer = 0.0f;
 
-                timer += Time.deltaTime / time;
-                yield return null;
-            }
-            bouncing = false;        
+        while (timer <= 1f && bouncing)
+        {
+            float height = Mathf.Sin(Mathf.PI * timer) * bounceHeight;
+            body.MovePosition(Vector3.Lerp(startPos, dest, timer) + Vector3.up * height);
+            timer += Time.deltaTime / time;
+            yield return null;
+        }
+        bouncing = false;
+    }
+
+    private void UpdateBounce()
+    {
+        falling = false;
+        StopCoroutine("Bounce");
+        bouncing = false;
+        lastTargetVectorIndex = targetVectorIndex;
+        if (lastTargetVectorIndex <= 0)
+        {
+            movingLeft = false;
+        }
+        else if (lastTargetVectorIndex >= 2)
+        {
+            movingLeft = true;
+        }
+        targetVectorIndex += (movingLeft) ? -1 : 1;
+        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
+        StartCoroutine("Bounce");
     }
 }
