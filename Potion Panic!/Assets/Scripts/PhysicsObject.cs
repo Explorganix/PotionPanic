@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class PhysicsObject : MonoBehaviour {
+
+    Random rand;
     //Self References
     Rigidbody2D body;
 
@@ -12,33 +13,33 @@ public class PhysicsObject : MonoBehaviour {
     public float bounceTime;
     public float fallSpeed;
     public int numRotations;
+    public List<Vector3> spawnPositions;
+    public float collisionTimer;
 
     //External Object References
     public Vector3 fallingVector;
-    //public Vector3 leftTarget;
-    //public Vector3 midTarget;
-    //public Vector3 rightTarget;
     public Trampoline trampoline;
     public List<Vector3> targetVectors;
 
     //Control Variables
     protected Vector3 rotationDirection;
-    protected bool movingLeft;
+    public bool movingLeft;
     protected bool rotating;
     protected bool falling;
     protected bool bouncing;
-    protected int targetVectorIndex;
-    protected int lastTargetVectorIndex;
+    public int targetVectorIndex;
+    public int lastTargetVectorIndex;
+    public int spawnIndex;
 
     protected virtual void Awake()
     {
+        Random.InitState(System.DateTime.Now.Millisecond);
+        rand = new Random();
         falling = true;
         bouncing = false;
         bounceHeight = 14f;
         bounceTime = 4f;
-        movingLeft = false;
         fallingVector = new Vector3(0, fallSpeed, 0);
-        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
         body = GetComponent<Rigidbody2D>();
         trampoline = GameObject.FindGameObjectWithTag("Trampoline").GetComponent<Trampoline>();
 
@@ -46,10 +47,37 @@ public class PhysicsObject : MonoBehaviour {
     // Use this for initialization
     protected virtual void Start()
     {
-        //targetVectors.Add(leftTarget);
-        //targetVectors.Add(midTarget);
-        //targetVectors.Add(rightTarget);
         targetVectors = trampoline.GetPositions();
+        
+        //takes the trampoline locations and adds to the Y values so they spawn above the top of the screen.
+        spawnPositions = targetVectors.GetRange(0, targetVectors.Count);
+        for(int i = 0; i < spawnPositions.Count; i++)
+        {
+            spawnPositions[i] += new Vector3(0, 30, 0);
+        }
+        spawnIndex = Random.Range(0, 3);
+        transform.position = spawnPositions[spawnIndex];
+
+        switch (spawnIndex)
+        {
+            case 0:
+                movingLeft = false;
+                targetVectorIndex = 0;
+                lastTargetVectorIndex = 1;
+                break;
+            case 1:
+                movingLeft = (Random.Range(0, 2) == 1) ? false : true;
+                targetVectorIndex = 1;//(movingLeft) ? 0 : 2;
+                lastTargetVectorIndex = (movingLeft) ? 2 : 0;
+                break;
+            case 2:
+                movingLeft = true;
+                targetVectorIndex = 2;
+                lastTargetVectorIndex = 1;
+                break;
+        }
+        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
+
     }
 
     // Update is called once per frame
@@ -59,14 +87,16 @@ public class PhysicsObject : MonoBehaviour {
         {
             body.MovePosition(transform.position + fallingVector * Time.deltaTime);
         }
+        collisionTimer += .016f;
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Trampoline")
+        if (other.gameObject.tag == "Trampoline" && collisionTimer > .5f)
         {
-            UpdateRotation();
+            collisionTimer = 0;
             UpdateBounce();
+            UpdateRotation();
         }
     }
 
@@ -83,6 +113,7 @@ public class PhysicsObject : MonoBehaviour {
 
     private void UpdateRotation()
     {
+        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
         if (!rotating)
         {
             StartCoroutine("Rotate");
@@ -125,7 +156,6 @@ public class PhysicsObject : MonoBehaviour {
             movingLeft = true;
         }
         targetVectorIndex += (movingLeft) ? -1 : 1;
-        rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
         StartCoroutine("Bounce");
     }
 }
