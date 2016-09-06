@@ -51,6 +51,6 @@ public class Trampoline : MonoBehaviour {
 
     public List<Vector3> GetPositions()
     {
-        return positions;
+        return positions.GetRange(0,positions.Count);
     }
 }

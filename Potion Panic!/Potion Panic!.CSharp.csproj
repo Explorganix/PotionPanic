@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\ScalableButton.cs" />
     <Compile Include="Assets\Scripts\ScalableCamera.cs" />
     <Compile Include="Assets\Scripts\Trampoline.cs" />
+    <Compile Include="Assets\Vat.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />

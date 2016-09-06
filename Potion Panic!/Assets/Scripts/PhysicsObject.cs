@@ -39,6 +39,8 @@ public class PhysicsObject : MonoBehaviour {
         bouncing = false;
         bounceHeight = 14f;
         bounceTime = 4f;
+        fallSpeed = -10f;
+        numRotations = 2;
         fallingVector = new Vector3(0, fallSpeed, 0);
         body = GetComponent<Rigidbody2D>();
         trampoline = GameObject.FindGameObjectWithTag("Trampoline").GetComponent<Trampoline>();
@@ -47,8 +49,12 @@ public class PhysicsObject : MonoBehaviour {
     // Use this for initialization
     protected virtual void Start()
     {
-        targetVectors = trampoline.GetPositions();
         
+        targetVectors = GetTargetPositions();
+        for (int i = 0; i < targetVectors.Count; i++)
+        {
+            targetVectors[i] += new Vector3(0, - 4, 0);
+        }
         //takes the trampoline locations and adds to the Y values so they spawn above the top of the screen.
         spawnPositions = targetVectors.GetRange(0, targetVectors.Count);
         for(int i = 0; i < spawnPositions.Count; i++)
@@ -67,7 +73,7 @@ public class PhysicsObject : MonoBehaviour {
                 break;
             case 1:
                 movingLeft = (Random.Range(0, 2) == 1) ? false : true;
-                targetVectorIndex = 1;//(movingLeft) ? 0 : 2;
+                targetVectorIndex = 1;
                 lastTargetVectorIndex = (movingLeft) ? 2 : 0;
                 break;
             case 2:
@@ -78,6 +84,17 @@ public class PhysicsObject : MonoBehaviour {
         }
         rotationDirection = (movingLeft) ? Vector3.forward : Vector3.back;
 
+    }
+
+    private List<Vector3> GetTargetPositions()
+    {
+        List<Vector3> returnList;
+        returnList = trampoline.GetPositions();
+        for(int i = 0; i < returnList.Count; i++)
+        {
+            returnList[i] += new Vector3(0, (GetComponent<CircleCollider2D>().radius * transform.localScale.y / 2) + trampoline.GetComponent<BoxCollider2D>().size.y, 0);
+        }
+        return returnList;
     }
 
     // Update is called once per frame
