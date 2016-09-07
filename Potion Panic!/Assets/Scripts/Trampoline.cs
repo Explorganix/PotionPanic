@@ -13,9 +13,11 @@ public class Trampoline : MonoBehaviour {
     public float camWidth;
     public int positionIndex;
 
+    public float moveTimer;
 
     void Awake()
     {
+        moveTimer = .1f;
         cam = Camera.main;
         camHeight = cam.orthographicSize;
         camWidth = 2f * camHeight * cam.aspect;
@@ -38,16 +40,28 @@ public class Trampoline : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            positionIndex++;
-            if (positionIndex > 2)
+            positionIndex--;
+            if (positionIndex < 0)
             {
                 positionIndex = 0;
             }
             transform.position = positions[positionIndex];
         }
-	}
+
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            positionIndex++;
+            if (positionIndex > 2)
+            {
+                positionIndex = 2;
+            }
+            transform.position = positions[positionIndex];
+        }
+
+
+    }
 
     public List<Vector3> GetPositions()
     {

@@ -7,16 +7,23 @@ public class Potion : PhysicsObject
 {
 
     public Color color;
+    public Sprite redPotionSprite;
+    public Sprite greenPotionSprite;
+    public Sprite bluePotionSprite;
+
+    protected SpriteRenderer spriteRend;
 
     protected override void Awake()
     {
-        color = Color.blue;
         base.Awake();
+        color = Color.blue;
+        spriteRend = GetComponent<SpriteRenderer>();
     }
 
     protected override void Start()
     {
         base.Start();
+    
     }
 
     protected override void Update()
@@ -26,11 +33,11 @@ public class Potion : PhysicsObject
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.gameObject.tag == "Vat")
+        base.OnTriggerEnter2D(other);
+        if (other.gameObject.tag == "Vat")
         {
             ProcessPotion();
         }
-        base.OnTriggerEnter2D(other);
     }
 
     private void ProcessPotion()
@@ -42,9 +49,9 @@ public class Potion : PhysicsObject
     {
         switch (col)
         {
-            case 'r': color = Color.red; break;
-            case 'g': color = Color.red; break;
-            case 'b': color = Color.red; break;
+            case 'r': color = Color.red; spriteRend.sprite = redPotionSprite; break;
+            case 'g': color = Color.green; spriteRend.sprite = greenPotionSprite; break;
+            case 'b': color = Color.blue; spriteRend.sprite = bluePotionSprite;  break;
         }
     }
 }
