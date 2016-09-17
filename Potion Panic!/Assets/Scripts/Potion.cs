@@ -6,7 +6,7 @@ using System;
 public class Potion : PhysicsObject
 {
 
-    public Color color;
+    public char color;
     public Sprite redPotionSprite;
     public Sprite greenPotionSprite;
     public Sprite bluePotionSprite;
@@ -16,7 +16,7 @@ public class Potion : PhysicsObject
     protected override void Awake()
     {
         base.Awake();
-        color = Color.blue;
+        color = 'b';
         spriteRend = GetComponent<SpriteRenderer>();
     }
 
@@ -34,24 +34,28 @@ public class Potion : PhysicsObject
     protected override void OnTriggerEnter2D(Collider2D other)
     {
         base.OnTriggerEnter2D(other);
-        if (other.gameObject.tag == "Vat")
+        if (other.gameObject.tag.Substring(0,3) == "Vat")
         {
-            ProcessPotion();
+            string vatTag = other.gameObject.tag;
+            ProcessPotion(vatTag);
         }
     }
 
-    private void ProcessPotion()
+    private void ProcessPotion(string vatTag)
     {
+        Vat vat = GameObject.FindGameObjectWithTag(vatTag).GetComponent<Vat>();
+        vat.ProcessPotion(color);
         Destroy(this.gameObject);
     }
 
     public void SetColor(char col)
     {
-        switch (col)
+        color = col;
+        switch (color)
         {
-            case 'r': color = Color.red; spriteRend.sprite = redPotionSprite; break;
-            case 'g': color = Color.green; spriteRend.sprite = greenPotionSprite; break;
-            case 'b': color = Color.blue; spriteRend.sprite = bluePotionSprite;  break;
+            case 'r': spriteRend.sprite = redPotionSprite; break;
+            case 'g': spriteRend.sprite = greenPotionSprite; break;
+            case 'b': spriteRend.sprite = bluePotionSprite;  break;
         }
     }
 }

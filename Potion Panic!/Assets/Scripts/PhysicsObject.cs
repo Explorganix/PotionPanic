@@ -53,7 +53,7 @@ public class PhysicsObject : MonoBehaviour {
         targetVectors = GetTargetPositions();
         for (int i = 0; i < targetVectors.Count; i++)
         {
-            targetVectors[i] += new Vector3(0, - 4, 0);
+            targetVectors[i] += new Vector3(0, - 6, 0);
         }
         //takes the trampoline locations and adds to the Y values so they spawn above the top of the screen.
         spawnPositions = targetVectors.GetRange(0, targetVectors.Count);
