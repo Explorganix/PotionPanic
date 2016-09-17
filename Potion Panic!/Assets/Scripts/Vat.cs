@@ -18,6 +18,7 @@ public class Vat : MonoBehaviour {
     public Color collectedColor;
     public SpriteRenderer targetColorSprite;
     public SpriteRenderer collectedColorSprite;
+    public float progressLevel;
 
     void Awake()
     {
@@ -37,19 +38,72 @@ public class Vat : MonoBehaviour {
 	
 	}
 
+    //scales up complexity as progress is made in the game
     List<char> CreatePotionRequests()
     {
         List<char> returnList = new List<char>();
-        for (int i = 0; i < targetVolume; i++)
+        // for early game
+        if(progressLevel < 2)
         {
-            int colNum = UnityEngine.Random.Range(0, 3);
+            int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
             char col = 'r';
-            switch (colNum) {
+            switch (colNum)
+            {
                 case 0: col = 'g'; break;
                 case 1: col = 'b'; break;
-                    }
-            returnList.Add(col);
+            }
+            for (int i = 0; i < targetVolume; i++)
+            {
+                returnList.Add(col);
+            }
         }
+
+        //for mid game
+        else if(progressLevel < 4)
+        {
+            int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
+            int colNum2 = UnityEngine.Random.Range(0, 3);
+            char col = 'r';
+            char col2 = 'r';
+            switch (colNum)
+            {
+                case 0: col = 'g'; break;
+                case 1: col = 'b'; break;
+            }
+            switch (colNum2)
+            {
+                case 0: col2 = 'g'; break;
+                case 1: col2 = 'b'; break;
+            }
+
+            for (int i = 0; i < targetVolume; i++)
+            {
+                int addCol = UnityEngine.Random.Range(0, 2);
+                switch (addCol)
+                {
+                    case 0: returnList.Add(col); break;
+                    case 1: returnList.Add(col2); break;
+                }
+
+            }
+        }
+
+        //for late game
+        else
+        {
+            for (int i = 0; i < targetVolume; i++)
+            {
+                int colNum = UnityEngine.Random.Range(0, 3); //selects a combo of three colors for the target vat color
+                char col = 'r';
+                switch (colNum)
+                {
+                    case 0: col = 'g'; break;
+                    case 1: col = 'b'; break;
+                }
+                returnList.Add(col);
+            }
+        }
+        
         return returnList;
     }
 
@@ -139,7 +193,7 @@ public class Vat : MonoBehaviour {
         int numReds = 0;
         int numGreens = 0;
         int numBlues = 0;
-        float colorNormalizer = 2.0f / targetVolume; //makes the sum of all rgb values equal to 255 to avoid oversaturation and black and white target color
+        float colorNormalizer = 2.0f / targetVolume; //helps avoid oversaturation and black and white target color
         foreach (char c in potionRequests)
         {
             switch (c)
@@ -152,6 +206,11 @@ public class Vat : MonoBehaviour {
 
         Color returnColor = new Color(numReds * colorNormalizer, numGreens * colorNormalizer, numBlues * colorNormalizer);
         return returnColor;
+    }
+
+    public void UpdateProgress(float progLevel)
+    {
+        progressLevel = progLevel;
     }
 
 

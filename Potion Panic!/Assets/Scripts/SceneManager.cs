@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class SceneManager : MonoBehaviour {
 
@@ -8,6 +9,7 @@ public class SceneManager : MonoBehaviour {
     public float difficultyLevel;
     public float difficultyMultiplier;
     public float progressLevel;
+    public float progressSpeed;
     public float dropTimer;
     public GameObject potionPrefab;
     public Vat leftVat;
@@ -22,8 +24,9 @@ public class SceneManager : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
-        baseDropsPerSecond = .2f;
+        baseDropsPerSecond = .1f;
         progressLevel = 1f;
+        progressSpeed = .05f;
         difficultyLevel = 5f;
         difficultyMultiplier = 1 + difficultyLevel / 10;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
@@ -44,10 +47,20 @@ public class SceneManager : MonoBehaviour {
             if (dropTimer >= 1)
             {
                 DropPotion();
+                UpdateProgress();
                 dropTimer = 0;
             }
         }	
 	}
+
+    private void UpdateProgress()
+    {
+        progressLevel += progressSpeed;
+        activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
+        leftVat.UpdateProgress(progressLevel);
+        midVat.UpdateProgress(progressLevel);
+        rightVat.UpdateProgress(progressLevel);
+    }
 
     void DropPotion()
     {
