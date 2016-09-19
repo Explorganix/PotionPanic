@@ -119,11 +119,13 @@ public class Vat : MonoBehaviour {
         if (potionRequests.Contains(colorChar))
         {
             potionRequests.Remove(colorChar);
+            sm.RemoveActivePotion(colorChar);
             numAccuratePotionsCollected++;
         }
         else
         {
             sm.AddPotionRequest(colorChar);
+            sm.RemoveActivePotion(colorChar);
         }
         UpdateAccuracy();
         CheckIfFull();

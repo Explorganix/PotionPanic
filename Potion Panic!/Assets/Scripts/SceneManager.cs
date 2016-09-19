@@ -16,6 +16,7 @@ public class SceneManager : MonoBehaviour {
     public Vat midVat;
     public Vat rightVat;
     public List<char> totalPotionRequests;
+    public List<char> activePotions;
     public int totalPotionsCollected;
     public int totalAccuratePotionsCollected;
     public double overallAccuracy;
@@ -24,16 +25,17 @@ public class SceneManager : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
-        baseDropsPerSecond = .1f;
+        baseDropsPerSecond = .2f;
         progressLevel = 1f;
-        progressSpeed = .05f;
+        progressSpeed = .025f;
         difficultyLevel = 5f;
-        difficultyMultiplier = 1 + difficultyLevel / 10;
+        difficultyMultiplier = 1 + difficultyLevel / 20;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         dropTimer = 0;
         totalPotionsCollected = 0;
         overallAccuracy = 0;
         overallAccuracyText = "100.0%";
+        activePotions = new List<char>();
     }
 	void Start () {
         UpdateTotalRequests();
@@ -69,11 +71,17 @@ public class SceneManager : MonoBehaviour {
         char colChar = totalPotionRequests[colIndex];
         newPotion.GetComponent<Potion>().SetColor(colChar);
         totalPotionRequests.Remove(colChar);
+        activePotions.Add(colChar);
     }
 
     internal void AddPotionRequest(char colorChar)
     {
         totalPotionRequests.Add(colorChar);
+    }
+
+    public void RemoveActivePotion(char colorChar)
+    {
+        activePotions.Remove(colorChar);
     }
 
     private List<char> GetTotalPotionRequests()
@@ -102,6 +110,10 @@ public class SceneManager : MonoBehaviour {
     public void UpdateTotalRequests()
     {
         totalPotionRequests = GetTotalPotionRequests();
+        foreach(char c in activePotions)
+        {
+            totalPotionRequests.Remove(c);
+        }
     }
 
 }
