@@ -21,9 +21,9 @@ public class Trampoline : MonoBehaviour {
         cam = Camera.main;
         camHeight = cam.orthographicSize;
         camWidth = 2f * camHeight * cam.aspect;
-        leftPosition = new Vector3(-4.8f, -Camera.main.orthographicSize / 2, 0);
-        midPosition = new Vector3(0, -Camera.main.orthographicSize / 2, 0);
-        rightPosition = new Vector3(4.8f, -Camera.main.orthographicSize / 2, 0);
+        leftPosition = new Vector3(-4.8f, -Camera.main.orthographicSize / 2 + .7f, 0);
+        midPosition = new Vector3(0, -Camera.main.orthographicSize / 2 + .7f, 0);
+        rightPosition = new Vector3(4.8f, -Camera.main.orthographicSize / 2 + .7f, 0);
 
         positions.Add(leftPosition);
         positions.Add(midPosition);

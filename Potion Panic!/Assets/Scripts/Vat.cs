@@ -18,10 +18,14 @@ public class Vat : MonoBehaviour {
     public Color collectedColor;
     public SpriteRenderer targetColorSprite;
     public SpriteRenderer collectedColorSprite;
+    public Transform collectedColorTran;
+    public float fullCollectedColorSize;
+    public float currentCollectedColorSize;
     public float progressLevel;
 
     void Awake()
     {
+        fullCollectedColorSize = 10.5f;
         volumeMax = 4;
         volumeMin = 2;
         numAccuratePotionsCollected = 0;
@@ -43,7 +47,7 @@ public class Vat : MonoBehaviour {
     {
         List<char> returnList = new List<char>();
         // for early game
-        if(progressLevel < 2)
+        if(progressLevel < 1.5)
         {
             int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
             char col = 'r';
@@ -59,7 +63,7 @@ public class Vat : MonoBehaviour {
         }
 
         //for mid game
-        else if(progressLevel < 4)
+        else if(progressLevel < 2.5)
         {
             int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
             int colNum2 = UnityEngine.Random.Range(0, 3);
@@ -116,6 +120,7 @@ public class Vat : MonoBehaviour {
     {
         potionsCollected.Add(colorChar);
         UpdateColorCollected();
+        UpdateVolumeCollected();
         if (potionRequests.Contains(colorChar))
         {
             potionRequests.Remove(colorChar);
@@ -130,6 +135,12 @@ public class Vat : MonoBehaviour {
         UpdateAccuracy();
         CheckIfFull();
         Debug.Log("Potion being processed color is :" + colorChar);
+    }
+
+    private void UpdateVolumeCollected()
+    {
+        currentCollectedColorSize = fullCollectedColorSize / targetVolume * potionsCollected.Count;
+        collectedColorTran.localScale = new Vector3(4.6f, currentCollectedColorSize, 0);
     }
 
     private void UpdateColorCollected()
@@ -188,6 +199,9 @@ public class Vat : MonoBehaviour {
 
         collectedColor = Color.clear;
         collectedColorSprite.color = collectedColor;
+
+       currentCollectedColorSize = 0;
+       collectedColorTran.localScale = new Vector3(4.6f, currentCollectedColorSize, 0);
     }
 
     private Color GetTargetColor()

@@ -21,6 +21,7 @@ public class SceneManager : MonoBehaviour {
     public int totalAccuratePotionsCollected;
     public double overallAccuracy;
     public string overallAccuracyText;
+    public AccuracyGauge ag;
 
     // Use this for initialization
     void Awake()
@@ -33,7 +34,7 @@ public class SceneManager : MonoBehaviour {
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         dropTimer = 0;
         totalPotionsCollected = 0;
-        overallAccuracy = 0;
+        overallAccuracy = 100;
         overallAccuracyText = "100.0%";
         activePotions = new List<char>();
     }
@@ -105,6 +106,7 @@ public class SceneManager : MonoBehaviour {
     {
         overallAccuracy = tacp / (double)tpc * 100;
         overallAccuracyText = overallAccuracy.ToString("F1") + "%";
+        ag.SetAccuracy();
     }
 
     public void UpdateTotalRequests()
@@ -114,6 +116,11 @@ public class SceneManager : MonoBehaviour {
         {
             totalPotionRequests.Remove(c);
         }
+    }
+
+    public double GetAccuracy()
+    {
+        return overallAccuracy;
     }
 
 }

@@ -37,9 +37,9 @@ public class PhysicsObject : MonoBehaviour {
         rand = new Random();
         falling = true;
         bouncing = false;
-        bounceHeight = 14f;
+        bounceHeight = 15f;
         bounceTime = 4f;
-        fallSpeed = -10f;
+        fallSpeed = -10f; //between 10 and 12
         numRotations = 2;
         fallingVector = new Vector3(0, fallSpeed, 0);
         body = GetComponent<Rigidbody2D>();
