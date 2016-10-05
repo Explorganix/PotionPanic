@@ -40,6 +40,30 @@ public class Trampoline : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(Input.mousePosition.x < Screen.width/2)
+            {
+                positionIndex--;
+                if (positionIndex < 0)
+                {
+                    positionIndex = 0;
+                }
+                transform.position = positions[positionIndex];
+            }
+            else
+            {
+                positionIndex++;
+                if (positionIndex > 2)
+                {
+                    positionIndex = 2;
+                }
+                transform.position = positions[positionIndex];
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             positionIndex--;
@@ -60,6 +84,35 @@ public class Trampoline : MonoBehaviour {
             transform.position = positions[positionIndex];
         }
 
+#else 
+        if(Input.touchCount > 0)
+        {
+            Touch myTouch = Input.touches[0];
+        }
+
+        foreach(Touch touch in Input.touches)
+        {
+            if(touch.position.x < Screen.width / 2)
+            {
+                positionIndex--;
+                if (positionIndex < 0)
+                {
+                    positionIndex = 0;
+                }
+                transform.position = positions[positionIndex];
+            }
+
+            else if(touch.position.x > Screen.width / 2)
+            {
+                positionIndex++;
+                if (positionIndex > 2)
+                {
+                    positionIndex = 2;
+                }
+                transform.position = positions[positionIndex];
+            }
+        }
+#endif
 
     }
 

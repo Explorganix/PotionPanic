@@ -14,8 +14,5 @@ public class MenuSceneManager : MonoBehaviour {
 	    
 	}
 
-    public void LoadLevel(string sceneName)
-    {
-        Application.LoadLevel(sceneName);
-    }
+
 }

@@ -22,6 +22,7 @@ public class SceneManager : MonoBehaviour {
     public double overallAccuracy;
     public string overallAccuracyText;
     public AccuracyGauge ag;
+    public SessionManager sessionManager;
 
     // Use this for initialization
     void Awake()
@@ -29,9 +30,6 @@ public class SceneManager : MonoBehaviour {
         baseDropsPerSecond = .2f;
         progressLevel = 1f;
         progressSpeed = .025f;
-        difficultyLevel = 5f;
-        difficultyMultiplier = 1 + difficultyLevel / 20;
-        activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         dropTimer = 0;
         totalPotionsCollected = 0;
         overallAccuracy = 100;
@@ -39,6 +37,10 @@ public class SceneManager : MonoBehaviour {
         activePotions = new List<char>();
     }
 	void Start () {
+        sessionManager = GameObject.FindGameObjectWithTag("SessionManager").GetComponent<SessionManager>();
+        difficultyLevel = sessionManager.GetDifficultyLevel();
+        difficultyMultiplier = 1 + difficultyLevel / 20;
+        activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         UpdateTotalRequests();
 	}
 	
