@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using System;
 
 public class SceneManager : MonoBehaviour {
@@ -23,6 +24,8 @@ public class SceneManager : MonoBehaviour {
     public string overallAccuracyText;
     public AccuracyGauge ag;
     public SessionManager sessionManager;
+    public RectTransform panelRectTransform;
+    public Canvas canvas;
 
     // Use this for initialization
     void Awake()
@@ -42,6 +45,8 @@ public class SceneManager : MonoBehaviour {
         difficultyMultiplier = 1 + difficultyLevel / 20;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         UpdateTotalRequests();
+        panelRectTransform = GameObject.FindGameObjectWithTag("Pause Panel").GetComponent<RectTransform>();
+        Time.timeScale = 1f;
 	}
 	
 	// Update is called once per frame
@@ -125,4 +130,16 @@ public class SceneManager : MonoBehaviour {
         return overallAccuracy;
     }
 
+    public void PauseGame()
+    {
+        Time.timeScale = 0;
+        panelRectTransform.SetParent(canvas.transform);
+        panelRectTransform.GetComponentInChildren<ResizablePanel>().Grow();
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1;
+        panelRectTransform.SetParent(this.transform);
+    }
 }

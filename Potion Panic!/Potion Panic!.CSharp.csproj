@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\OptionsSceneManager.cs" />
     <Compile Include="Assets\Scripts\PhysicsObject.cs" />
     <Compile Include="Assets\Scripts\Potion.cs" />
+    <Compile Include="Assets\Scripts\ResizablePanel.cs" />
     <Compile Include="Assets\Scripts\ScalableButton.cs" />
     <Compile Include="Assets\Scripts\ScalableCamera.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />

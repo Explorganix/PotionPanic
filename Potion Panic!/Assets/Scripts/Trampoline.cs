@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Trampoline : MonoBehaviour {
+public class Trampoline : MonoBehaviour
+{
 
     public Vector3 leftPosition;
     public Vector3 midPosition;
@@ -12,12 +13,12 @@ public class Trampoline : MonoBehaviour {
     public float camHeight;
     public float camWidth;
     public int positionIndex;
-
+    public float moveFrequency;
     public float moveTimer;
 
     void Awake()
     {
-        moveTimer = .1f;
+        moveFrequency = .1f;
         cam = Camera.main;
         camHeight = cam.orthographicSize;
         camWidth = 2f * camHeight * cam.aspect;
@@ -33,18 +34,43 @@ public class Trampoline : MonoBehaviour {
         positionIndex = 1;
     }
     // Use this for initialization
-    void Start ()
+    void Start()
     {
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
 
-#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
-        if (Input.GetMouseButtonDown(0))
+    // Update is called once per frame
+    void Update()
+    {
+        moveTimer += Time.deltaTime;
+
+        if (moveTimer > moveFrequency)
         {
-            if(Input.mousePosition.x < Screen.width/2)
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (Input.mousePosition.x < Screen.width / 2)
+                {
+                    positionIndex--;
+                    if (positionIndex < 0)
+                    {
+                        positionIndex = 0;
+                    }
+                    transform.position = positions[positionIndex];
+                }
+                else
+                {
+                    positionIndex++;
+                    if (positionIndex > 2)
+                    {
+                        positionIndex = 2;
+                    }
+                    transform.position = positions[positionIndex];
+                }
+                moveTimer = 0;
+            }
+
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 positionIndex--;
                 if (positionIndex < 0)
@@ -52,8 +78,11 @@ public class Trampoline : MonoBehaviour {
                     positionIndex = 0;
                 }
                 transform.position = positions[positionIndex];
+                moveTimer = 0;
+
             }
-            else
+
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
             {
                 positionIndex++;
                 if (positionIndex > 2)
@@ -61,38 +90,17 @@ public class Trampoline : MonoBehaviour {
                     positionIndex = 2;
                 }
                 transform.position = positions[positionIndex];
-            }
-        }
+                moveTimer = 0;
 
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            positionIndex--;
-            if (positionIndex < 0)
-            {
-                positionIndex = 0;
             }
-            transform.position = positions[positionIndex];
-        }
 
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            positionIndex++;
-            if (positionIndex > 2)
-            {
-                positionIndex = 2;
-            }
-            transform.position = positions[positionIndex];
-        }
-
-#else 
+#else
         if(Input.touchCount > 0)
         {
             Touch myTouch = Input.touches[0];
-        }
-
-        foreach(Touch touch in Input.touches)
+             foreach(Touch touch in Input.touches)
         {
-            if(touch.position.x < Screen.width / 2)
+            if(touch.phase == TouchPhase.Began && touch.position.x < Screen.width / 2)
             {
                 positionIndex--;
                 if (positionIndex < 0)
@@ -102,7 +110,7 @@ public class Trampoline : MonoBehaviour {
                 transform.position = positions[positionIndex];
             }
 
-            else if(touch.position.x > Screen.width / 2)
+            else if(touch.phase == TouchPhase.Began && touch.position.x > Screen.width / 2)
             {
                 positionIndex++;
                 if (positionIndex > 2)
@@ -112,12 +120,17 @@ public class Trampoline : MonoBehaviour {
                 transform.position = positions[positionIndex];
             }
         }
+            moveTimer = 0;
+        }
+
+       
 #endif
 
+        }
     }
 
     public List<Vector3> GetPositions()
     {
-        return positions.GetRange(0,positions.Count);
+        return positions.GetRange(0, positions.Count);
     }
 }
