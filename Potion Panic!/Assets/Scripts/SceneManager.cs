@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
-public class SceneManager : MonoBehaviour {
+public class SceneManager : MonoBehaviour
+{
 
     public float baseDropsPerSecond;
     public float activeDropsPerSecond;
@@ -20,56 +22,88 @@ public class SceneManager : MonoBehaviour {
     public List<char> activePotions;
     public int totalPotionsCollected;
     public int totalAccuratePotionsCollected;
+    public int totalPotionsDropped;
     public double overallAccuracy;
     public string overallAccuracyText;
     public AccuracyGauge ag;
     public SessionManager sessionManager;
     public RectTransform panelRectTransform;
     public Canvas canvas;
+    public Text scoreBoard;
+    public int score;
+    public int displayScore;
+    public int basePointsPerPotion;
+    public List<string> tier1Colors = new List<string>() { "red", "green", "blue" };
+    public List<string> tier2Colors = new List<string>() { "yellow", "pink", "sky" };
 
     // Use this for initialization
     void Awake()
     {
         baseDropsPerSecond = .2f;
         progressLevel = 1f;
-        progressSpeed = .025f;
+        progressSpeed = .005f;
         dropTimer = 0;
         totalPotionsCollected = 0;
         overallAccuracy = 100;
         overallAccuracyText = "100.0%";
         activePotions = new List<char>();
+        score = 0;
+        displayScore = 0;
+        totalPotionsDropped = 0;
+        basePointsPerPotion = 50;
     }
-	void Start () {
+    void Start()
+    {
         sessionManager = GameObject.FindGameObjectWithTag("SessionManager").GetComponent<SessionManager>();
         difficultyLevel = sessionManager.GetDifficultyLevel();
         difficultyMultiplier = 1 + difficultyLevel / 20;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         UpdateTotalRequests();
         panelRectTransform = GameObject.FindGameObjectWithTag("Pause Panel").GetComponent<RectTransform>();
+        scoreBoard = GameObject.FindGameObjectWithTag("High Score").GetComponent<Text>();
+        scoreBoard.text = "$" + displayScore;
         Time.timeScale = 1f;
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         dropTimer += activeDropsPerSecond * Time.deltaTime;
-        if(totalPotionRequests.Count > 0)
+        if (totalPotionRequests.Count > 0)
         {
             if (dropTimer >= 1)
             {
+                dropTimer = 0;
                 DropPotion();
                 UpdateProgress();
-                dropTimer = 0;
+                totalPotionsDropped++;
+                IncreaseScore(200);
             }
-        }	
-	}
+        }
+    }
 
     private void UpdateProgress()
     {
         progressLevel += progressSpeed;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
-        leftVat.UpdateProgress(progressLevel);
-        midVat.UpdateProgress(progressLevel);
-        rightVat.UpdateProgress(progressLevel);
+        switch (totalPotionsDropped)
+        {
+            case 20:
+                leftVat.UpdateColorPool(totalPotionsDropped);
+                midVat.UpdateColorPool(totalPotionsDropped);
+                rightVat.UpdateColorPool(totalPotionsDropped);
+                break;
+            case 40:
+                leftVat.UpdateColorPool(totalPotionsDropped);
+                midVat.UpdateColorPool(totalPotionsDropped);
+                rightVat.UpdateColorPool(totalPotionsDropped);
+                break;
+            case 60:
+                leftVat.UpdateColorPool(totalPotionsDropped);
+                midVat.UpdateColorPool(totalPotionsDropped);
+                rightVat.UpdateColorPool(totalPotionsDropped);
+                break;
+        }
     }
 
     void DropPotion()
@@ -102,11 +136,17 @@ public class SceneManager : MonoBehaviour {
         return returnList;
     }
 
-    public void ProcessVat(int vatBatchVolume, int numAccurateCollected)
+    public void ProcessVat(int vatBatchVolume, int numAccurateCollected, string requestColorString)
     {
         totalPotionsCollected += vatBatchVolume;
         totalAccuratePotionsCollected += numAccurateCollected;
         UpdateAccuracy(totalPotionsCollected, totalAccuratePotionsCollected);
+        int colorTierMultiplier = 1;
+        if (tier2Colors.Contains(requestColorString))
+        {
+            colorTierMultiplier = 2;
+        }
+        IncreaseScore(numAccurateCollected * basePointsPerPotion * colorTierMultiplier);
     }
 
     private void UpdateAccuracy(int tpc, int tacp)
@@ -119,7 +159,7 @@ public class SceneManager : MonoBehaviour {
     public void UpdateTotalRequests()
     {
         totalPotionRequests = GetTotalPotionRequests();
-        foreach(char c in activePotions)
+        foreach (char c in activePotions)
         {
             totalPotionRequests.Remove(c);
         }
@@ -141,5 +181,30 @@ public class SceneManager : MonoBehaviour {
     {
         Time.timeScale = 1;
         panelRectTransform.SetParent(this.transform);
+    }
+
+    public void IncreaseScore(int points)
+    {
+        score += points;
+        StartCoroutine("IncrementScoreBoard");
+    }
+    IEnumerator IncrementScoreBoard()
+    {
+        while (displayScore < score)
+        {
+            displayScore += 5;
+
+            if (displayScore % 40 == 0)
+            {
+                scoreBoard.fontSize -= 19;
+            }
+            if (displayScore % 20 == 0)
+            {
+                scoreBoard.fontSize = Mathf.Clamp(scoreBoard.fontSize + 10, 50, 109);
+            }
+            scoreBoard.text = "$" + displayScore;
+            yield return null;
+        }
+
     }
 }

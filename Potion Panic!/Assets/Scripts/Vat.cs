@@ -3,7 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-public class Vat : MonoBehaviour {
+public class Vat : MonoBehaviour
+{
 
     public int targetVolume;
     public int volumeMax;
@@ -21,95 +22,112 @@ public class Vat : MonoBehaviour {
     public Transform collectedColorTran;
     public float fullCollectedColorSize;
     public float currentCollectedColorSize;
-    public float progressLevel;
+    public List<string> colorPool = new List<string>() { "red", "green", "blue" };
+    public List<string> tier2Colors = new List<string>() { "yellow", "pink", "sky" };
+    string requestColorString = "blue";
 
     void Awake()
     {
         fullCollectedColorSize = 10.5f;
         volumeMax = 4;
-        volumeMin = 2;
+        volumeMin = 4;
         numAccuratePotionsCollected = 0;
         potionsCollected = new List<char>();
         Initialize();
     }
 
-	void Start () {
+    void Start()
+    {
         sm = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneManager>();
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     //scales up complexity as progress is made in the game
     List<char> CreatePotionRequests()
     {
         List<char> returnList = new List<char>();
-        // for early game
-        if(progressLevel < 1.5)
+        int colorIndex = UnityEngine.Random.Range(0, colorPool.Count);
+        requestColorString = colorPool[colorIndex];
+        switch (requestColorString)
         {
-            int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
-            char col = 'r';
-            switch (colNum)
-            {
-                case 0: col = 'g'; break;
-                case 1: col = 'b'; break;
-            }
-            for (int i = 0; i < targetVolume; i++)
-            {
-                returnList.Add(col);
-            }
-        }
-
-        //for mid game
-        else if(progressLevel < 2.5)
-        {
-            int colNum = UnityEngine.Random.Range(0, 3); //select one color for the vat target color
-            int colNum2 = UnityEngine.Random.Range(0, 3);
-            char col = 'r';
-            char col2 = 'r';
-            switch (colNum)
-            {
-                case 0: col = 'g'; break;
-                case 1: col = 'b'; break;
-            }
-            switch (colNum2)
-            {
-                case 0: col2 = 'g'; break;
-                case 1: col2 = 'b'; break;
-            }
-
-            for (int i = 0; i < targetVolume; i++)
-            {
-                int addCol = UnityEngine.Random.Range(0, 2);
-                switch (addCol)
+            //tier 1 for early game
+            case "red":
+                for (int i = 0; i < targetVolume; i++)
                 {
-                    case 0: returnList.Add(col); break;
-                    case 1: returnList.Add(col2); break;
+                    returnList.Add('r');
                 }
+                break;
 
-            }
-        }
-
-        //for late game
-        else
-        {
-            for (int i = 0; i < targetVolume; i++)
-            {
-                int colNum = UnityEngine.Random.Range(0, 3); //selects a combo of three colors for the target vat color
-                char col = 'r';
-                switch (colNum)
+            case "green":
+                for (int i = 0; i < targetVolume; i++)
                 {
-                    case 0: col = 'g'; break;
-                    case 1: col = 'b'; break;
+                    returnList.Add('g');
                 }
-                returnList.Add(col);
-            }
+                break;
+            case "blue":
+                for (int i = 0; i < targetVolume; i++)
+                {
+                    returnList.Add('b');
+                }
+                break;
+
+            //tier 2 for mid game
+            case "yellow":
+                for (int i = 0; i < targetVolume; i++)
+                {
+                    if (i % 2 == 0)
+                    {
+                        returnList.Add('r');
+                    }
+                    else
+                    {
+                        returnList.Add('g');
+                    }
+                }
+                break;
+            case "pink":
+                for (int i = 0; i < targetVolume; i++)
+                {
+                    if (i % 2 == 0)
+                    {
+                        returnList.Add('r');
+                    }
+                    else
+                    {
+                        returnList.Add('b');
+                    }
+                }
+                break;
+            case "sky":
+                for (int i = 0; i < targetVolume; i++)
+                {
+                    if (i % 2 == 0)
+                    {
+                        returnList.Add('b');
+                    }
+                    else
+                    {
+                        returnList.Add('g');
+                    }
+                }
+                break;
+
+            //make potion blue if nothing else
+            default:
+                for (int i = 0; i < targetVolume; i++)
+                {
+                    returnList.Add('b');
+                }
+                break;
         }
-        
         return returnList;
     }
+
 
     public List<char> GetPotionRequests()
     {
@@ -172,7 +190,7 @@ public class Vat : MonoBehaviour {
 
     private void CheckIfFull()
     {
-        if(potionsCollected.Count >= targetVolume)
+        if (potionsCollected.Count >= targetVolume)
         {
             ProcessVat();
         }
@@ -180,7 +198,7 @@ public class Vat : MonoBehaviour {
 
     private void ProcessVat()
     {
-        sm.ProcessVat(potionsCollected.Count, numAccuratePotionsCollected);
+        sm.ProcessVat(potionsCollected.Count, numAccuratePotionsCollected, requestColorString);
         Initialize();
         sm.UpdateTotalRequests();
     }
@@ -200,8 +218,8 @@ public class Vat : MonoBehaviour {
         collectedColor = Color.clear;
         collectedColorSprite.color = collectedColor;
 
-       currentCollectedColorSize = 0;
-       collectedColorTran.localScale = new Vector3(4.6f, currentCollectedColorSize, 0);
+        currentCollectedColorSize = 0;
+        collectedColorTran.localScale = new Vector3(4.6f, currentCollectedColorSize, 0);
     }
 
     private Color GetTargetColor()
@@ -224,10 +242,19 @@ public class Vat : MonoBehaviour {
         return returnColor;
     }
 
-    public void UpdateProgress(float progLevel)
+    public void UpdateColorPool(int totPotDropped)
     {
-        progressLevel = progLevel;
+        Debug.Log("UpdateColorPool: " + totPotDropped);
+        if (tier2Colors.Count > 0 && totPotDropped <= 100)
+        {
+            int tier2ColIndex = UnityEngine.Random.Range(0, tier2Colors.Count);
+            string colorToAdd = tier2Colors[tier2ColIndex];
+            colorPool.Add(colorToAdd);
+            tier2Colors.Remove(colorToAdd);
+        }
+
     }
+
 
 
 }
