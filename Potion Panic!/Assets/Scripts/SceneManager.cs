@@ -27,10 +27,16 @@ public class SceneManager : MonoBehaviour
     public string overallAccuracyText;
     public AccuracyGauge ag;
     public SessionManager sessionManager;
-    public RectTransform panelRectTransform;
+    public RectTransform pausePanelRectTransform;
+    public RectTransform gameOverPanelRectTransform;
     public Canvas canvas;
     public Text scoreBoard;
+    public Text pauseYourScoreText;
+    public Text pauseHighScoreText;
+    public Text gameOverYourScoreText;
+    public Text gameOverHighScoreText;
     public int score;
+    public int highScore;
     public int displayScore;
     public int basePointsPerPotion;
     public List<string> tier1Colors = new List<string>() { "red", "green", "blue" };
@@ -59,10 +65,15 @@ public class SceneManager : MonoBehaviour
         difficultyMultiplier = 1 + difficultyLevel / 20;
         activeDropsPerSecond = baseDropsPerSecond * progressLevel * difficultyMultiplier;
         UpdateTotalRequests();
-        panelRectTransform = GameObject.FindGameObjectWithTag("Pause Panel").GetComponent<RectTransform>();
+        pausePanelRectTransform = GameObject.FindGameObjectWithTag("Pause Panel").GetComponent<RectTransform>();
+        gameOverPanelRectTransform = GameObject.FindGameObjectWithTag("Game Over Panel").GetComponent<RectTransform>();
         scoreBoard = GameObject.FindGameObjectWithTag("High Score").GetComponent<Text>();
         scoreBoard.text = "$" + displayScore;
         Time.timeScale = 1f;
+        highScore = sessionManager.GetHighScore();
+        pausePanelRectTransform.SetParent(this.transform);
+        gameOverPanelRectTransform.SetParent(this.transform);
+
     }
 
     // Update is called once per frame
@@ -77,7 +88,7 @@ public class SceneManager : MonoBehaviour
                 DropPotion();
                 UpdateProgress();
                 totalPotionsDropped++;
-                IncreaseScore(200);
+                sessionManager.SetHighScore(200);
             }
         }
     }
@@ -154,6 +165,23 @@ public class SceneManager : MonoBehaviour
         overallAccuracy = tacp / (double)tpc * 100;
         overallAccuracyText = overallAccuracy.ToString("F1") + "%";
         ag.SetAccuracy();
+        if(overallAccuracy < 90)
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        Time.timeScale = 0;
+        gameOverYourScoreText.text = "$" + score;
+        gameOverHighScoreText.text = "$" + highScore;
+        gameOverPanelRectTransform.SetParent(canvas.transform);
+        if (score > highScore)
+        {
+            highScore = score;
+            sessionManager.SetHighScore(highScore);
+        }
     }
 
     public void UpdateTotalRequests()
@@ -173,19 +201,26 @@ public class SceneManager : MonoBehaviour
     public void PauseGame()
     {
         Time.timeScale = 0;
-        panelRectTransform.SetParent(canvas.transform);
-        panelRectTransform.GetComponentInChildren<ResizablePanel>().Grow();
+        pauseYourScoreText.text = "$" + score;
+        pauseHighScoreText.text = "$" + highScore;
+        pausePanelRectTransform.SetParent(canvas.transform);
+        pausePanelRectTransform.GetComponentInChildren<ResizablePanel>().Grow();
     }
 
     public void ResumeGame()
     {
         Time.timeScale = 1;
-        panelRectTransform.SetParent(this.transform);
+        pausePanelRectTransform.SetParent(this.transform);
     }
 
     public void IncreaseScore(int points)
     {
         score += points;
+        if (score > highScore)
+        {
+            highScore = score;
+            sessionManager.SetHighScore(highScore);
+        }
         StartCoroutine("IncrementScoreBoard");
     }
     IEnumerator IncrementScoreBoard()
