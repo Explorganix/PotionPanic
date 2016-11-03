@@ -25,7 +25,7 @@ public class SceneManager : MonoBehaviour
     public int totalPotionsDropped;
     public double overallAccuracy;
     public string overallAccuracyText;
-    public AccuracyGauge ag;
+    //public AccuracyGauge ag;
     public SessionManager sessionManager;
     public RectTransform pausePanelRectTransform;
     public RectTransform gameOverPanelRectTransform;
@@ -86,9 +86,8 @@ public class SceneManager : MonoBehaviour
             {
                 dropTimer = 0;
                 DropPotion();
-                UpdateProgress();
                 totalPotionsDropped++;
-                sessionManager.SetHighScore(200);
+                UpdateProgress();
             }
         }
     }
@@ -122,9 +121,9 @@ public class SceneManager : MonoBehaviour
         GameObject newPotion = Instantiate(potionPrefab);
         int colIndex = UnityEngine.Random.Range(0, totalPotionRequests.Count);
         char colChar = totalPotionRequests[colIndex];
+        activePotions.Add(colChar);
         newPotion.GetComponent<Potion>().SetColor(colChar);
         totalPotionRequests.Remove(colChar);
-        activePotions.Add(colChar);
     }
 
     internal void AddPotionRequest(char colorChar)
@@ -164,10 +163,10 @@ public class SceneManager : MonoBehaviour
     {
         overallAccuracy = tacp / (double)tpc * 100;
         overallAccuracyText = overallAccuracy.ToString("F1") + "%";
-        ag.SetAccuracy();
+        //ag.SetAccuracy();
         if(overallAccuracy < 90)
         {
-            GameOver();
+           // GameOver();
         }
     }
 

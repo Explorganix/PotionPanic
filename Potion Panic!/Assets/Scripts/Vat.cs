@@ -136,19 +136,18 @@ public class Vat : MonoBehaviour
 
     public void ProcessPotion(char colorChar)
     {
+        sm.RemoveActivePotion(colorChar);
         potionsCollected.Add(colorChar);
         UpdateColorCollected();
         UpdateVolumeCollected();
         if (potionRequests.Contains(colorChar))
         {
             potionRequests.Remove(colorChar);
-            sm.RemoveActivePotion(colorChar);
             numAccuratePotionsCollected++;
         }
         else
         {
             sm.AddPotionRequest(colorChar);
-            sm.RemoveActivePotion(colorChar);
         }
         UpdateAccuracy();
         CheckIfFull();

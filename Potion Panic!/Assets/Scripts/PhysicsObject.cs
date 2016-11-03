@@ -40,7 +40,7 @@ public class PhysicsObject : MonoBehaviour {
         bounceHeight = 15f;
         bounceTime = 4f;
         fallSpeed = -10f; //between 10 and 12
-        numRotations = 2.25f;
+        numRotations = 3.25f;
         fallingVector = new Vector3(0, fallSpeed, 0);
         body = GetComponent<Rigidbody2D>();
         trampoline = GameObject.FindGameObjectWithTag("Trampoline").GetComponent<Trampoline>();

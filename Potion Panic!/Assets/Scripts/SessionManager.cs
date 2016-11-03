@@ -37,7 +37,7 @@ public class SessionManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        splashArt = GameObject.FindGameObjectWithTag("Splash Art").GetComponent<SpriteRenderer>();
+        //splashArt = GameObject.FindGameObjectWithTag("Splash Art").GetComponent<SpriteRenderer>();
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Splash_Screen")
         {
             StartCoroutine("SplashScreenDelay");
