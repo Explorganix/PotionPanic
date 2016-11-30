@@ -13,11 +13,15 @@ public class Potion : PhysicsObject
 
     protected SpriteRenderer spriteRend;
 
+
+
+
     protected override void Awake()
     {
         base.Awake();
         color = 'b';
         spriteRend = GetComponent<SpriteRenderer>();
+
     }
 
     protected override void Start()
@@ -53,9 +57,23 @@ public class Potion : PhysicsObject
         color = col;
         switch (color)
         {
-            case 'r': spriteRend.sprite = redPotionSprite; bounceHeight = 12f; bounceTime = 3f; numRotations = 2.25f; break;
-            case 'g': spriteRend.sprite = greenPotionSprite; bounceHeight = 9f; bounceTime = 2f; numRotations = 1.25f; break;
-            case 'b': spriteRend.sprite = bluePotionSprite;  break;
+          case 'r': 
+            spriteRend.sprite = redPotionSprite; 
+            bounceHeight = 12f; 
+            bounceTime = 3f; 
+            numRotations = 2.25f; 
+            break;
+          case 'g': 
+            spriteRend.sprite = greenPotionSprite;
+            bounceHeight = 9f;
+            bounceTime = 2f;
+            numRotations = 1.25f;
+            sfxPlayer.pitch = 0.85f; 
+            break;
+            case 'b': 
+            spriteRend.sprite = bluePotionSprite; 
+            sfxPlayer.pitch = 1.15f; 
+            break;
         }
     }
 }

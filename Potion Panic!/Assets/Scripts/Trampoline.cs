@@ -16,6 +16,8 @@ public class Trampoline : MonoBehaviour
     public float moveFrequency;
     public float moveTimer;
 
+
+
     void Awake()
     {
         moveFrequency = .1f;

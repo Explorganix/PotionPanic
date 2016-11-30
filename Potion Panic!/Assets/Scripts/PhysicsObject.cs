@@ -31,6 +31,12 @@ public class PhysicsObject : MonoBehaviour {
     public int lastTargetVectorIndex;
     public int spawnIndex;
 
+  public AudioSource sfxPlayer;
+  public AudioClip bounce1;
+  public AudioClip bounce2;
+  public List<AudioClip> bounceSounds;
+
+
     protected virtual void Awake()
     {
         Random.InitState(System.DateTime.Now.Millisecond);
@@ -44,7 +50,8 @@ public class PhysicsObject : MonoBehaviour {
         fallingVector = new Vector3(0, fallSpeed, 0);
         body = GetComponent<Rigidbody2D>();
         trampoline = GameObject.FindGameObjectWithTag("Trampoline").GetComponent<Trampoline>();
-
+    sfxPlayer = GetComponent<AudioSource> ();
+    bounceSounds = new List<AudioClip> (){ bounce1, bounce2 };
     }
     // Use this for initialization
     protected virtual void Start()
@@ -114,6 +121,7 @@ public class PhysicsObject : MonoBehaviour {
             collisionTimer = 0;
             UpdateBounce();
             UpdateRotation();
+      sfxPlayer.Play ();//PlayRandomBounce ();
         }
     }
 
@@ -175,4 +183,9 @@ public class PhysicsObject : MonoBehaviour {
         targetVectorIndex += (movingLeft) ? -1 : 1;
         StartCoroutine("Bounce");
     }
+
+  private void PlayRandomBounce(){
+    int index = UnityEngine.Random.Range (0, 2);
+    sfxPlayer.PlayOneShot (bounceSounds [index]);
+  }
 }

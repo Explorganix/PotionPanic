@@ -42,12 +42,15 @@ public class SceneManager : MonoBehaviour
     public List<string> tier1Colors = new List<string>() { "red", "green", "blue" };
     public List<string> tier2Colors = new List<string>() { "yellow", "pink", "sky" };
 
+  public AudioSource sfxPlayer;
+  public AudioClip pointIncrease;
+ 
     // Use this for initialization
     void Awake()
     {
         baseDropsPerSecond = .2f;
         progressLevel = 1f;
-        progressSpeed = .005f;
+        progressSpeed = .025f;
         dropTimer = 0;
         totalPotionsCollected = 0;
         overallAccuracy = 100;
@@ -57,6 +60,7 @@ public class SceneManager : MonoBehaviour
         displayScore = 0;
         totalPotionsDropped = 0;
         basePointsPerPotion = 50;
+    sfxPlayer = GetComponent<AudioSource> ();
     }
     void Start()
     {
@@ -235,10 +239,13 @@ public class SceneManager : MonoBehaviour
             if (displayScore % 20 == 0)
             {
                 scoreBoard.fontSize = Mathf.Clamp(scoreBoard.fontSize + 10, 50, 109);
+        sfxPlayer.PlayOneShot (pointIncrease);
+
             }
             scoreBoard.text = "$" + displayScore;
             yield return null;
         }
 
     }
+   
 }

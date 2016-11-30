@@ -11,7 +11,7 @@ public class Vat : MonoBehaviour
     public int volumeMin;
     public List<char> potionRequests;
     public List<char> potionsCollected;
-    public SceneManager sm;
+    public SceneManager sceneManager;
     public int numAccuratePotionsCollected;
     public double vatAccuracy;
     public string vatAccuracyText;
@@ -25,6 +25,10 @@ public class Vat : MonoBehaviour
     public List<string> colorPool = new List<string>() { "red", "green", "blue" };
     public List<string> tier2Colors = new List<string>() { "yellow", "pink", "sky" };
     string requestColorString = "blue";
+  public AudioClip potionCollectCorrect;
+  public AudioClip potionColletIncorrect;
+  public List<AudioClip> potionSounds;
+  public AudioSource sfxPlayer;
 
     void Awake()
     {
@@ -33,12 +37,14 @@ public class Vat : MonoBehaviour
         volumeMin = 4;
         numAccuratePotionsCollected = 0;
         potionsCollected = new List<char>();
+    potionSounds = new List<AudioClip> (){ potionCollectCorrect, potionColletIncorrect };
+    sfxPlayer = GetComponent<AudioSource> ();
         Initialize();
     }
 
     void Start()
     {
-        sm = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneManager>();
+        sceneManager = GameObject.FindGameObjectWithTag("SceneManager").GetComponent<SceneManager>();
     }
 
     // Update is called once per frame
@@ -136,7 +142,7 @@ public class Vat : MonoBehaviour
 
     public void ProcessPotion(char colorChar)
     {
-        sm.RemoveActivePotion(colorChar);
+        sceneManager.RemoveActivePotion(colorChar);
         potionsCollected.Add(colorChar);
         UpdateColorCollected();
         UpdateVolumeCollected();
@@ -144,10 +150,13 @@ public class Vat : MonoBehaviour
         {
             potionRequests.Remove(colorChar);
             numAccuratePotionsCollected++;
+      sfxPlayer.PlayOneShot (potionSounds [0]);
         }
         else
         {
-            sm.AddPotionRequest(colorChar);
+            sceneManager.AddPotionRequest(colorChar);
+      sfxPlayer.PlayOneShot (potionSounds [1]);
+
         }
         UpdateAccuracy();
         CheckIfFull();
@@ -197,9 +206,9 @@ public class Vat : MonoBehaviour
 
     private void ProcessVat()
     {
-        sm.ProcessVat(potionsCollected.Count, numAccuratePotionsCollected, requestColorString);
+        sceneManager.ProcessVat(potionsCollected.Count, numAccuratePotionsCollected, requestColorString);
         Initialize();
-        sm.UpdateTotalRequests();
+        sceneManager.UpdateTotalRequests();
     }
 
     private void Initialize()

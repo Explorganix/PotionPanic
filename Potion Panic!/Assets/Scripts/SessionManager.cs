@@ -13,6 +13,11 @@ public class SessionManager : MonoBehaviour
     public SpriteRenderer menuArt;
     public int highScore;
 
+  public AudioSource musicPlayer;
+  public AudioClip playSceneMusic;
+  public AudioClip menuSceneMusic;
+  public AudioClip gameOverMusic;
+
     void Awake()
     {
         //make singleton
@@ -27,6 +32,7 @@ public class SessionManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         GetPlayerPrefs();
+    musicPlayer = GetComponent<AudioSource> ();
     }
 
     public int GetDifficultyLevel()
@@ -57,7 +63,19 @@ public class SessionManager : MonoBehaviour
 
     public void LoadLevel(string sceneName)
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+
+    switch (sceneName) {
+      case "Play_Scene":
+        musicPlayer.clip = playSceneMusic;
+        musicPlayer.Play ();
+        break;
+      case "Menu_Scene":
+        musicPlayer.clip = menuSceneMusic;
+        musicPlayer.Play ();
+
+        break;
+    }
     }
 
     public int GetHighScore()
