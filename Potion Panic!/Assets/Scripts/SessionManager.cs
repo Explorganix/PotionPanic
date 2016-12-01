@@ -10,14 +10,16 @@ public class SessionManager : MonoBehaviour
   public static SessionManager instance = null;
 
   public int difficultyLevel;
-  public Image splashArt;
-  public SpriteRenderer menuArt;
+  public Image fadeMask;
   public int highScore;
 
   public AudioSource musicPlayer;
   public AudioClip playSceneMusic;
   public AudioClip menuSceneMusic;
   public AudioClip gameOverMusic;
+
+  public Camera mainCamera;
+  public Canvas canvas;
 
   void Awake ()
   {
@@ -31,6 +33,7 @@ public class SessionManager : MonoBehaviour
 
     GetPlayerPrefs ();
     musicPlayer = GetComponent<AudioSource> ();
+    canvas = GetComponentInChildren<Canvas> ();
   }
 
   public int GetDifficultyLevel ()
@@ -41,10 +44,7 @@ public class SessionManager : MonoBehaviour
   // Use this for initialization
   void Start ()
   {
-    //splashArt = GameObject.FindGameObjectWithTag("Splash Art").GetComponent<SpriteRenderer>();
-    if (UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name == "Splash_Screen") {
-      StartCoroutine ("SplashScreenDelay");
-    }
+    LoadLevel ("Main_Menu");
   }
 
   public void SetDifficultyLevel (int lvl)
@@ -56,24 +56,9 @@ public class SessionManager : MonoBehaviour
   public void LoadLevel (string sceneName)
   {
 
-    string previousScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name;
-    UnityEngine.SceneManagement.SceneManager.LoadSceneAsync (sceneName);
+    StartCoroutine (TransitionScenes (sceneName));
 
-    switch (sceneName) {
-      
-      case "Play_Scene":
-        if (previousScene != "Play_Scene") {
-          musicPlayer.clip = playSceneMusic;
-          musicPlayer.Play ();
-        }
-        break;
-      case "Main_Menu":
-        if (previousScene == "Play_Scene") {
-          musicPlayer.clip = menuSceneMusic;
-          musicPlayer.Play ();
-        }
-        break;
-    }
+
   }
 
   public int GetHighScore ()
@@ -89,35 +74,80 @@ public class SessionManager : MonoBehaviour
     PlayerPrefs.SetInt ("HighScore", highScore);
   }
 
-  IEnumerator SplashScreenDelay ()
-  {
-    yield return new WaitForSeconds (5f);
-    StartCoroutine ("FadeOut");
-
-  }
-
-  IEnumerator FadeMaskIn ()
-  {
-    for (float f = 1f; f >= 0; f -= 0.02f) {
-      Color c = splashArt.color;
-      c.a = f;
-      splashArt.color = c;
-      yield return new WaitForEndOfFrame ();
-    }
-    yield return new WaitForSeconds (.25f);
-    UnityEngine.SceneManagement.SceneManager.LoadScene ("Main_Menu");
-    //menuArt = GameObject.FindGameObjectWithTag("Menu Art").GetComponent<SpriteRenderer>();
-  }
 
   IEnumerator FadeMaskOut ()
   {
-    yield return null;
+    Debug.Log ("Fading out started");
+    if (fadeMask.color.a > 0.01f) {
+      yield return new WaitForSeconds (1f);
+      for (float f = 1f; f > 0; f -= 0.01f) {
+        Color c = fadeMask.color;
+        c.a = f;
+        fadeMask.color = c;
+        yield return new WaitForEndOfFrame ();
+      }
+      yield return new WaitForSeconds (.25f);
+    }
+    Debug.Log ("Fading  out complete");
+  }
+
+  IEnumerator FadeMaskIn ()
+  {    
+    Debug.Log ("Fading  in started");    
+    for (float f = 0.01f; f < 1f; f += 0.01f) {
+      Color c = fadeMask.color;
+      c.a = f;
+      fadeMask.color = c;
+      yield return new WaitForEndOfFrame ();
+    }
+    Debug.Log ("Fading  in complete");
+      
+    yield return new WaitForSeconds (.25f);
+
   }
 
   void GetPlayerPrefs ()
   {
     highScore = PlayerPrefs.GetInt ("HighScore");
     difficultyLevel = PlayerPrefs.GetInt ("DifficultyLevel");
+  }
+
+  IEnumerator TransitionScenes (string sceneName)
+  {
+    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+    StartCoroutine ("FadeMaskOut");
+    yield return new WaitForSeconds (3f); 
+    StartCoroutine ("FadeMaskIn");
+    yield return new WaitForSeconds (3f);
+    QuickLoadScene (sceneName);
+
+    StartCoroutine ("FadeMaskOut");
+    yield return new WaitForSeconds (3f);
+    canvas.renderMode = RenderMode.WorldSpace;
+
+  }
+
+  public void QuickLoadScene (string sceneName)
+  {
+    string previousScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name;
+    UnityEngine.SceneManagement.SceneManager.LoadScene (sceneName);
+
+    switch (sceneName) {
+
+      case "Play_Scene":
+        //if (previousScene != "Play_Scene") {
+        musicPlayer.clip = playSceneMusic;
+        musicPlayer.Play ();
+        //}
+        break;
+      case "Main_Menu":
+        if (previousScene == "Play_Scene" || previousScene == "Splash_Screen") {
+          musicPlayer.clip = menuSceneMusic;
+          musicPlayer.Play ();
+        }
+        break;
+    }
+  
   }
 
 }

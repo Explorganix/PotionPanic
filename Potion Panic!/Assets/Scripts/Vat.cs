@@ -49,12 +49,6 @@ public class Vat : MonoBehaviour
     sceneManager = GameObject.FindGameObjectWithTag ("SceneManager").GetComponent<SceneManager> ();
   }
 
-  // Update is called once per frame
-  void Update ()
-  {
-
-  }
-
   //scales up complexity as progress is made in the game
   List<char> CreatePotionRequests ()
   {
