@@ -44,6 +44,11 @@ public class SceneManager : MonoBehaviour
 
   public AudioSource sfxPlayer;
   public AudioClip pointIncrease;
+  public Image sirenFlash;
+  public AudioSource sirenSound;
+  public AudioClip sirenSoundClip;
+
+  public bool failureWarning;
  
     // Use this for initialization
     void Awake()
@@ -60,7 +65,6 @@ public class SceneManager : MonoBehaviour
         displayScore = 0;
         totalPotionsDropped = 0;
         basePointsPerPotion = 50;
-    sfxPlayer = GetComponent<AudioSource> ();
     }
     void Start()
     {
@@ -77,7 +81,6 @@ public class SceneManager : MonoBehaviour
         highScore = sessionManager.GetHighScore();
         pausePanelRectTransform.SetParent(this.transform);
         gameOverPanelRectTransform.SetParent(this.transform);
-
     }
 
     // Update is called once per frame
@@ -168,10 +171,14 @@ public class SceneManager : MonoBehaviour
         overallAccuracy = tacp / (double)tpc * 100;
         overallAccuracyText = overallAccuracy.ToString("F1") + "%";
         //ag.SetAccuracy();
-        if(overallAccuracy < 90)
-        {
-           // GameOver();
-        }
+    if (overallAccuracy < 80 && !failureWarning) {
+      failureWarning = true;
+      StartSiren ();
+      // GameOver();
+    } else if(overallAccuracy >= 80 && failureWarning) {
+      failureWarning = false;
+      StopSiren ();
+    }
     }
 
     private void GameOver()
@@ -247,5 +254,48 @@ public class SceneManager : MonoBehaviour
         }
 
     }
-   
+
+  void StartSiren(){
+    StartCoroutine ("SirenFlashOn");
+    sirenSound.Play ();
+    sessionManager.musicPlayer.volume = .20f;
+  }
+
+  void StopSiren(){
+    StopCoroutine ("SirenFlashOn");
+    StartCoroutine ("SirenFlashOff");
+    sirenSound.Stop ();
+    sessionManager.musicPlayer.volume = 1f;
+
+  }
+
+
+  public IEnumerator SirenFlashOn(){
+    while (failureWarning) {
+      for (float f = 0f; f <= .2; f += 0.01f) {
+        Color c = sirenFlash.color;
+        c.a = f;
+        sirenFlash.color = c;
+        yield return new WaitForEndOfFrame ();
+      }
+
+      for (float f = .2f; f >= 0; f -= 0.01f) {
+        Color c = sirenFlash.color;
+        c.a = f;
+        sirenFlash.color = c;
+        yield return new WaitForEndOfFrame ();
+      }
+    }
+
+  }
+
+  public IEnumerator SirenFlashOff(){
+      for (float f = .2f; f >= 0; f -= 0.01f) {
+        Color c = sirenFlash.color;
+        c.a = f;
+        sirenFlash.color = c;
+        yield return new WaitForEndOfFrame ();
+      }
+    }
+    
 }

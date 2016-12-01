@@ -43,7 +43,7 @@ public class PhysicsObject : MonoBehaviour {
         rand = new Random();
         falling = true;
         bouncing = false;
-        bounceHeight = 15f;
+        bounceHeight = 14f;
         bounceTime = 4f;
         fallSpeed = -10f; //between 10 and 12
         numRotations = 3.25f;

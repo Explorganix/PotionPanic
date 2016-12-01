@@ -65,7 +65,7 @@ public class Potion : PhysicsObject
             break;
           case 'g': 
             spriteRend.sprite = greenPotionSprite;
-            bounceHeight = 9f;
+            bounceHeight = 10f;
             bounceTime = 2f;
             numRotations = 1.25f;
             sfxPlayer.pitch = 0.85f; 
